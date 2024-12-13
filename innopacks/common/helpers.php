@@ -651,6 +651,22 @@ if (! function_exists('front_route')) {
     }
 }
 
+if (! function_exists('front_root_route')) {
+    /**
+     * Get frontend route
+     *
+     * @param  $name
+     * @param  mixed  $parameters
+     * @param  bool  $absolute
+     * @return string
+     * @throws Exception
+     */
+    function front_root_route($name, mixed $parameters = [], bool $absolute = true): string
+    {
+        return route('front.'.$name, $parameters, $absolute);
+    }
+}
+
 if (! function_exists('has_front_route')) {
     /**
      * Check frontend route exist.
@@ -853,6 +869,10 @@ if (! function_exists('theme_asset')) {
      */
     function theme_asset(string $theme, string $path, ?bool $secure = null): string
     {
+        if (config('app.debug')) {
+            return mix("themes/$theme/$path");
+        }
+
         $originThemePath = "$theme/public/$path";
         $destThemePath   = "themes/$theme/$path";
         if (! file_exists(public_path($destThemePath))) {
@@ -948,7 +968,7 @@ if (! function_exists('innoshop_version')) {
      */
     function innoshop_version(): string
     {
-        return 'v'.config('innoshop.version').'('.config('innoshop.build').')';
+        return ucfirst(config('innoshop.edition')).' v'.config('innoshop.version').'('.config('innoshop.build').')';
     }
 }
 

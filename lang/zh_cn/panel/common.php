@@ -21,6 +21,7 @@ return [
     'close'             => '关闭',
     'collapse'          => '折叠',
     'confirm'           => '确定',
+    'copy'              => '复制',
     'create'            => '新建',
     'created_at'        => '创建时间',
     'date'              => '日期',
@@ -47,6 +48,7 @@ return [
     'meta_keywords'     => 'Meta 关键词',
     'meta_title'        => 'Meta 标题',
     'name'              => '名称',
+    'no'                => '否',
     'no_data'           => '没有数据',
     'password'          => '密码',
     'please_choose'     => '请选择',
@@ -68,4 +70,5 @@ return [
     'view'              => '查看',
     'viewed'            => '已查看',
     'whether_enable'    => '是否启用',
+    'yes'               => '是',
 ];

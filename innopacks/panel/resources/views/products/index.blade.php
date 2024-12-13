@@ -25,6 +25,7 @@
               <th>{{ __('panel/product.price') }}</th>
               <th>{{ __('panel/product.quantity') }}</th>
               <th>{{ __('panel/common.created_at') }}</th>
+              <th>{{ __('panel/common.active') }}</th>
               <th>{{ __('panel/common.actions') }}</th>
             </tr>
             </thead>
@@ -44,9 +45,14 @@
                 <td>{{ currency_format($product->masterSku->price) }}</td>
                 <td>{{ $product->masterSku->quantity }}</td>
                 <td>{{ $product->created_at }}</td>
+                <td>@include('panel::shared.list_switch', ['value' => $product->active, 'url' => panel_route('products.active', $product->id)])</td>
                 <td>
                   <a href="{{ panel_route('products.edit', [$product->id]) }}"
                      class="btn btn-outline-primary btn-sm">{{ __('panel/common.edit')}}</a>
+
+                  <a href="{{ panel_route('products.copy', [$product->id]) }}"
+                     class="btn btn-outline-warning btn-sm">{{ __('panel/common.copy')}}</a>
+
                   <form action="{{ panel_route('products.destroy', [$product->id]) }}" method="POST" class="d-inline">
                     @csrf
                     @method('DELETE')

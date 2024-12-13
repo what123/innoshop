@@ -7,11 +7,12 @@
  * @license    https://opensource.org/licenses/OSL-3.0 Open Software License (OSL 3.0)
  */
 
-namespace InnoShop\Common\Models\OrderReturn;
+namespace InnoShop\RestAPI\FrontApiControllers;
 
-use InnoShop\Common\Models\BaseModel;
-
-class Item extends BaseModel
+class IntroductionController extends BaseController
 {
-    protected $table = 'order_return_items';
+    public function index(): string
+    {
+        return 'This is Frontend Restful APIs for '.innoshop_version();
+    }
 }

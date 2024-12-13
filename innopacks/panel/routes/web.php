@@ -28,11 +28,14 @@ Route::middleware(['admin_auth:admin'])
         Route::put('/orders/{order}/status', [Controllers\OrderController::class, 'changeStatus'])->name('orders.change_status');
 
         Route::resource('/order_returns', Controllers\OrderReturnController::class);
+        Route::put('/order_returns/{order_return}/status', [Controllers\OrderReturnController::class, 'changeStatus'])->name('order_returns.change_status');
 
         Route::resource('/products', Controllers\ProductController::class);
+        Route::put('/products/{product}/active', [Controllers\ProductController::class, 'active'])->name('products.active');
+        Route::get('/products/{product}/copy', [Controllers\ProductController::class, 'copy'])->name('products.copy');
 
         Route::resource('/categories', Controllers\CategoryController::class);
-        Route::put('/categories/{currency}/active', [Controllers\CategoryController::class, 'active'])->name('categories.active');
+        Route::put('/categories/{category}/active', [Controllers\CategoryController::class, 'active'])->name('categories.active');
 
         Route::resource('/attribute_groups', Controllers\AttributeGroupController::class);
 
@@ -59,9 +62,12 @@ Route::middleware(['admin_auth:admin'])
         Route::put('/pages/{page}/active', [Controllers\PageController::class, 'active'])->name('pages.active');
 
         Route::resource('/customers', Controllers\CustomerController::class);
+        Route::get('/customers/{customer}/login', [Controllers\CustomerController::class, 'loginFrontend'])->name('customers.login');
         Route::put('/customers/{customer}/active', [Controllers\CustomerController::class, 'active'])->name('customers.active');
 
         Route::resource('/customer_groups', Controllers\CustomerGroupController::class);
+        Route::get('/social', [Controllers\SocialController::class, 'index'])->name('socials.index');
+        Route::post('/social', [Controllers\SocialController::class, 'store'])->name('socials.store');
 
         Route::get('/analytics', [Controllers\AnalyticsController::class, 'index'])->name('analytics.index');
         Route::get('/analytics/order', [Controllers\AnalyticsController::class, 'order'])->name('analytics_order');
@@ -76,7 +82,7 @@ Route::middleware(['admin_auth:admin'])
         Route::put('/locales/{country}/active', [Controllers\LocaleController::class, 'active'])->name('locales.active');
 
         Route::get('/themes', [Controllers\ThemeController::class, 'index'])->name('themes.index');
-        Route::put('/themes/{country}/active', [Controllers\ThemeController::class, 'enable'])->name('themes.active');
+        Route::put('/themes/{code}/active', [Controllers\ThemeController::class, 'enable'])->name('themes.active');
         Route::get('/themes/settings', [Controllers\ThemeController::class, 'settings'])->name('themes_settings.index');
         Route::put('/themes/settings', [Controllers\ThemeController::class, 'updateSettings'])->name('themes_settings.update');
 

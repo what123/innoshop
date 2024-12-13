@@ -46,7 +46,10 @@ class ProductRepo extends BaseRepo
      */
     public function list(array $filters = []): LengthAwarePaginator
     {
-        return $this->builder($filters)->orderByDesc('id')->paginate();
+        $sort  = $filters['sort']  ?? 'id';
+        $order = $filters['order'] ?? 'desc';
+
+        return $this->builder($filters)->orderBy($sort, $order)->paginate($filters['per_page'] ?? 15);
     }
 
     /**
@@ -132,6 +135,45 @@ class ProductRepo extends BaseRepo
     }
 
     /**
+     * @param  Product  $product
+     * @return mixed
+     */
+    public function copy(Product $product): mixed
+    {
+        $product->load([
+            'skus',
+            'translations',
+            'images',
+            'categories',
+            'productAttributes',
+            'relations',
+            'videos',
+        ]);
+        $copy = $product->replicate();
+
+        $copy->slug .= '-'.rand(0, 99999);
+        $copy->push();
+
+        foreach ($product->getRelations() as $relation => $entries) {
+            foreach ($entries as $entry) {
+                $newEntry = $entry->replicate();
+                if ($relation == 'skus') {
+                    $newEntry->code .= '-'.rand(0, 99999);
+                } elseif ($relation == 'categories') {
+                    $copy->categories()->attach($entry->id);
+
+                    continue;
+                }
+                if ($newEntry->push()) {
+                    $copy->{$relation}()->save($newEntry);
+                }
+            }
+        }
+
+        return $copy;
+    }
+
+    /**
      * Crate or update product.
      *
      * @param  Product  $product
@@ -166,12 +208,6 @@ class ProductRepo extends BaseRepo
 
             $product->skus()->createMany($this->handleSkus($product, $data['skus']));
 
-            $masterSku = $product->skus()->where('is_default', true)->first();
-
-            $product->product_sku_id   = $masterSku->id;
-            $product->product_image_id = $product->images()->first()->id ?? 0;
-            $product->saveOrFail();
-
             DB::commit();
 
             return $product;
@@ -185,7 +221,7 @@ class ProductRepo extends BaseRepo
      * @param  $data
      * @return string[]
      */
-    private function handleProductData($data): array
+    public function handleProductData($data): array
     {
         $variables = $data['variables'] ?? ($data['variants'] ?? []);
         if (is_string($variables)) {
@@ -215,7 +251,7 @@ class ProductRepo extends BaseRepo
      * @param  $skus
      * @return array
      */
-    private function handleSkus($product, $skus): array
+    public function handleSkus($product, $skus): array
     {
         if (is_string($skus)) {
             $skus = json_decode($skus, true);
@@ -223,10 +259,11 @@ class ProductRepo extends BaseRepo
         $onlyOneSku = count($skus) == 1;
 
         $items = [];
-        foreach ($skus as $sku) {
+        foreach ($skus as $index => $sku) {
             $path = $sku['image'] ?? '';
             if ($path) {
-                $image   = ImageRepo::getInstance()->findOrCreate($product, $path);
+                $isCover = ($index == 0);
+                $image   = ImageRepo::getInstance()->findOrCreate($product, $path, $isCover, true);
                 $imageID = $image->id ?? 0;
             } else {
                 $imageID = $sku['product_image_id'] ?? 0;
@@ -308,14 +345,16 @@ class ProductRepo extends BaseRepo
      * @param  Product  $product
      * @param  $images
      * @return void
+     * @throws Throwable
      */
-    private function syncImages(Product $product, $images): void
+    public function syncImages(Product $product, $images): void
     {
         if (empty($images)) {
             return;
         }
-        foreach ($images as $image) {
-            ImageRepo::getInstance()->findOrCreate($product, $image);
+        foreach ($images as $index => $image) {
+            $isCover = ($index == 0);
+            ImageRepo::getInstance()->findOrCreate($product, $image, $isCover);
         }
     }
 
@@ -413,6 +452,11 @@ class ProductRepo extends BaseRepo
             $builder->where('slug', $slug);
         }
 
+        $productIDs = $filters['product_ids'] ?? [];
+        if ($productIDs) {
+            $builder->whereIn('products.id', $productIDs);
+        }
+
         if (isset($filters['active'])) {
             $builder->where('products.active', (bool) $filters['active']);
         }
@@ -470,5 +514,56 @@ class ProductRepo extends BaseRepo
             ->orderByDesc('updated_at')
             ->limit($limit)
             ->get();
+    }
+
+    /**
+     * Get product list by IDs.
+     *
+     * @param  mixed  $productIDs
+     * @return mixed
+     */
+    public function getListByProductIDs(mixed $productIDs): mixed
+    {
+        if (empty($productIDs)) {
+            return [];
+        }
+        if (is_string($productIDs)) {
+            $productIDs = explode(',', $productIDs);
+        }
+
+        return Product::query()
+            ->with(['translation', 'masterSku'])
+            ->whereIn('id', $productIDs)
+            ->orderByRaw('FIELD(id, '.implode(',', $productIDs).')')
+            ->get();
+    }
+
+    /**
+     * @param  $keyword
+     * @param  int  $limit
+     * @return mixed
+     */
+    public function autocomplete($keyword, int $limit = 10): mixed
+    {
+        if (empty($keyword)) {
+            return [];
+        }
+
+        return Product::query()
+            ->with(['translation', 'masterSku'])
+            ->whereHas('translation', function ($query) use ($keyword) {
+                $query->where('name', 'like', "%{$keyword}%");
+            })
+            ->limit($limit)
+            ->get();
+    }
+
+    /**
+     * @param  $id
+     * @return string
+     */
+    public function getNameByID($id): string
+    {
+        return Product::query()->find($id)->description->name ?? '';
     }
 }

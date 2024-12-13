@@ -21,6 +21,7 @@ return [
     'close'             => 'Close',
     'collapse'          => 'Collapse',
     'confirm'           => 'Confirm',
+    'copy'              => 'Copy',
     'create'            => 'Create',
     'created_at'        => 'Created',
     'date'              => 'Date',
@@ -47,6 +48,7 @@ return [
     'meta_keywords'     => 'Meta Keyword',
     'meta_title'        => 'Meta Title',
     'name'              => 'Name',
+    'no'                => 'no',
     'no_data'           => 'No data',
     'password'          => 'Password',
     'please_choose'     => 'Please Choose',
@@ -68,4 +70,5 @@ return [
     'view'              => 'View',
     'viewed'            => 'Viewed',
     'whether_enable'    => 'Enabled',
+    'yes'               => 'yes',
 ];

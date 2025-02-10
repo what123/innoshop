@@ -34,6 +34,7 @@ return [
     'order_returns'      => 'Order Returns',
     'orders'             => 'Orders',
     'pages'              => 'Pages',
+    'file_manager'       => 'File Manager',
     'plugin_market'      => 'Plugin Market',
     'plugins'            => 'Plugins',
     'product'            => 'Product',
@@ -59,4 +60,6 @@ return [
     'top_product'        => 'Product',
     'top_setting'        => 'Setting',
     'upload'             => 'Upload',
+    'attribute_values'   => 'Attribute Values',
+    'socials'            => 'Social Logins',
 ];

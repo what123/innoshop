@@ -23,6 +23,8 @@ Route::middleware($middlewares)->group(function () {
     Route::get('/products', [PanelApiControllers\ProductController::class, 'index'])->name('products.index');
     Route::get('/products/names', [PanelApiControllers\ProductController::class, 'names'])->name('products.names');
     Route::get('/products/autocomplete', [PanelApiControllers\ProductController::class, 'autocomplete'])->name('products.autocomplete');
+    Route::post('/products/import', [PanelApiControllers\ProductController::class, 'import'])->name('products.import');
+    Route::put('/products/{spu_code}', [PanelApiControllers\ProductController::class, 'update'])->name('products.update');
 
     Route::get('/categories', [PanelApiControllers\CategoryController::class, 'index'])->name('categories.index');
     Route::get('/categories/names', [PanelApiControllers\CategoryController::class, 'names'])->name('categories.names');
@@ -46,6 +48,8 @@ Route::middleware($middlewares)->group(function () {
     Route::put('/catalogs/{catalog}', [PanelApiControllers\CatalogController::class, 'update'])->name('catalogs.update');
     Route::delete('/catalogs/{catalog}', [PanelApiControllers\CatalogController::class, 'destroy'])->name('catalogs.destroy');
 
+    Route::post('/orders/{order}/notes', [PanelApiControllers\OrderController::class, 'updateNote'])->name('orders.update_note');
+
     Route::get('/pages', [PanelApiControllers\PageController::class, 'index'])->name('pages.index');
     Route::get('/pages/names', [PanelApiControllers\PageController::class, 'names'])->name('pages.names');
     Route::get('/pages/autocomplete', [PanelApiControllers\PageController::class, 'autocomplete'])->name('pages.autocomplete');
@@ -62,5 +66,17 @@ Route::middleware($middlewares)->group(function () {
 
     Route::get('/attributes', [PanelApiControllers\AttributeController::class, 'index'])->name('attributes.index');
     Route::get('/attribute_values', [PanelApiControllers\AttributeValueController::class, 'index'])->name('attribute_values.index');
+
+    Route::get('file_manager/files', [PanelApiControllers\FileManagerController::class, 'getFiles'])->name('file_manager.get_files');
+    Route::get('file_manager/directories', [PanelApiControllers\FileManagerController::class, 'getDirectories'])->name('file_manager.get_directories');
+    Route::post('file_manager/directories', [PanelApiControllers\FileManagerController::class, 'createDirectory'])->name('file_manager.create_directory');
+    Route::post('file_manager/upload', [PanelApiControllers\FileManagerController::class, 'uploadFiles'])->name('file_manager.upload');
+    Route::post('file_manager/rename', [PanelApiControllers\FileManagerController::class, 'rename'])->name('file_manager.rename');
+    Route::delete('file_manager/files', [PanelApiControllers\FileManagerController::class, 'destroyFiles'])->name('file_manager.delete_files');
+    Route::delete('file_manager/directories', [PanelApiControllers\FileManagerController::class, 'destroyDirectories'])->name('file_manager.delete_directories');
+    Route::post('file_manager/move_directories', [PanelApiControllers\FileManagerController::class, 'moveDirectories'])->name('file_manager.move_directories');
+    Route::post('file_manager/move_files', [PanelApiControllers\FileManagerController::class, 'moveFiles'])->name('file_manager.move_files');
+    Route::get('file_manager/export', [PanelApiControllers\FileManagerController::class, 'exportZip'])->name('file_manager.export');
+    Route::post('file_manager/copy_files', [PanelApiControllers\FileManagerController::class, 'copyFiles'])->name('file_manager.copy_files');
 
 });

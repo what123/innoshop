@@ -9,7 +9,6 @@
 
 use Barryvdh\Debugbar\Facades\Debugbar;
 use Illuminate\Contracts\Auth\Authenticatable;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
@@ -248,6 +247,18 @@ if (! function_exists('token_customer_id')) {
     function token_customer_id(): int
     {
         return request()->user()->id ?? 0;
+    }
+}
+
+if (! function_exists('token_customer')) {
+    /**
+     * Get current customer ID
+     *
+     * @return mixed
+     */
+    function token_customer(): mixed
+    {
+        return request()->user();
     }
 }
 
@@ -895,7 +906,7 @@ if (! function_exists('theme_asset')) {
      */
     function theme_asset(string $theme, string $path, ?bool $secure = null): string
     {
-        if (config('app.debug')) {
+        if (config('app.debug') && Str::endsWith($path, ['.js', '.css'])) {
             return mix("themes/$theme/$path");
         }
 
@@ -1029,7 +1040,7 @@ if (! function_exists('seller_enabled')) {
      */
     function seller_enabled(): bool
     {
-        return class_exists(\InnoShop\Seller\SellerServiceProvider::class);
+        return class_exists(\InnoShop\Seller\SellerServiceProvider::class) && env('SELLER_ENABLED', true);
     }
 }
 

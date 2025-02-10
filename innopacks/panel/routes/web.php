@@ -25,6 +25,7 @@ Route::middleware(['admin_auth:admin'])
         Route::post('/upload/files', [Controllers\UploadController::class, 'files'])->name('upload.files');
 
         Route::resource('/orders', Controllers\OrderController::class);
+        Route::get('/orders/{order}/printing', [Controllers\OrderController::class, 'printing'])->name('orders.printing');
         Route::put('/orders/{order}/status', [Controllers\OrderController::class, 'changeStatus'])->name('orders.change_status');
 
         Route::resource('/order_returns', Controllers\OrderReturnController::class);
@@ -113,4 +114,7 @@ Route::middleware(['admin_auth:admin'])
 
         Route::resource('/tax_classes', Controllers\TaxClassController::class);
         Route::resource('/tax_rates', Controllers\TaxRateController::class);
+
+        Route::get('file_manager', [InnoShop\RestAPI\PanelApiControllers\FileManagerController::class, 'index'])->name('file_manager.index');
+        Route::get('file_manager/iframe', [InnoShop\RestAPI\PanelApiControllers\FileManagerController::class, 'iframe'])->name('file_manager.iframe');
     });

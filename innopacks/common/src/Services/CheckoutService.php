@@ -30,11 +30,11 @@ use Throwable;
 
 class CheckoutService extends BaseService
 {
-    private int $customerID;
+    protected int $customerID;
 
-    private string $guestID;
+    protected string $guestID;
 
-    private array $cartList = [];
+    protected array $cartList = [];
 
     private array $addressList = [];
 
@@ -78,7 +78,7 @@ class CheckoutService extends BaseService
      */
     public static function getInstance(int $customerID = 0, string $guestID = ''): static
     {
-        return new self($customerID, $guestID);
+        return new static($customerID, $guestID);
     }
 
     /**
@@ -262,6 +262,15 @@ class CheckoutService extends BaseService
             $this->updateValues(['billing_method_code' => $billingMethods[0]['code'] ?? '']);
         }
 
+        $addressList = $this->getAddressList();
+        if (! collect($addressList)->contains('id', $this->checkoutData['shipping_address_id'])) {
+            $this->updateValues(['shipping_address_id' => 0]);
+        }
+
+        if (! collect($addressList)->contains('id', $this->checkoutData['billing_address_id'])) {
+            $this->updateValues(['billing_address_id' => 0]);
+        }
+
         $this->checkoutData = $this->freshCheckoutData();
     }
 
@@ -379,6 +388,12 @@ class CheckoutService extends BaseService
 
             $this->checkout->delete();
             CartService::getInstance($this->customerID)->getCartBuilder(['selected' => true])->delete();
+
+            $data = [
+                'checkout_data' => $checkoutData,
+                'order'         => $order,
+            ];
+            fire_hook_action('service.checkout.confirm.after', $data);
 
             return $order;
         } catch (Exception $e) {
